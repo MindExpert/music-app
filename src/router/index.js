@@ -28,6 +28,7 @@ const routes = [
       console.log("Manage Route Guard");
       next();
     },
+    // Meta fields on the routes. We'll use it if route requires authentication
     meta: {
       requiresAuth: true,
     },
@@ -48,6 +49,7 @@ const router = createRouter({
   linkExactActiveClass: "text-yellow-500",
 });
 
+/***  ROUTE GARDS ***/
 router.beforeEach((to, from, next) => {
   // console.log("Global Guard");
 

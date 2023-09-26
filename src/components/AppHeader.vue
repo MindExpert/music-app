@@ -56,6 +56,7 @@ export default {
         signOut() {
             this.userStore.signOut();
 
+            // Redirect Behaviour
             if (this.$route.meta.requiresAuth) {
                 this.$router.push({ name: "home" });
             }
