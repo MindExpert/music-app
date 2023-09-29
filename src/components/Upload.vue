@@ -19,16 +19,21 @@
                 >
                 <h5>Drop your files here</h5>
             </div>
+ 
             <hr class="my-6" />
+
             <!-- Progess Bars -->
             <div class="mb-4" v-for="upload in uploads" :key="upload.name">
                 <!-- File Name -->
-                <div class="font-bold text-sm">{{ upload.name }}</div>
+                <div class="font-bold text-sm" :class="upload.text_class">
+                    <i :class="upload.icon"></i> {{ upload.name }}
+                </div>
+
                 <div class="flex h-4 overflow-hidden bg-gray-200 rounded">
                     <!-- Inner Progress Bar -->
                     <div class="transition-all progress-bar bg-blue-400"
-                        :class="{ 'bg-blue-400' : complete }"
-                        :style="{ width: upload.progress + '%'}"
+                        :class="upload.variant"
+                        :style="{ width: upload.currenct_progress + '%'}"
                     ></div>
                 </div>
             </div>
@@ -61,20 +66,38 @@
 
                     const storageRef = storage.ref(); //'music-70ff1.appspot.com'
                    
-                    const uploadTask = storageRef.child(`songs/${file.name}`).put(file); //'music-70ff1.appspot.com/songs/music.mp3'
+                    const task = storageRef.child(`songs/${file.name}`).put(file); //'music-70ff1.appspot.com/songs/music.mp3'
 
-                    this.uploads.push({
-                        uploadTask,
+                    // Push array will return the length of the array after the object has been push into [at the end]
+                    const uploadIndex = this.uploads.push({
+                        task,
                         name: file.name,
-                        progress: 0,
+                        currenct_progress: 0,
                         error: false,
-                        complete: false
-                    });
+                        complete: false,
+                        variant: 'bg-blue-400',
+                        icon: 'fas fa-spinner fa-spin',
+                        text_class: '',
+                    }) - 1; // This way we get the index of the last element [length - 1]
 
-                    uploadTask.on("state_changed", (snapshot) => {
+                    task.on("state_changed", (snapshot) => {
                         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
 
+                        // Its importent we are using arrow funct, because otherwise we wount be able to use (this) keyword
+                        this.uploads[uploadIndex].currenct_progress = progress;
+
                         console.log(`Upload is ${progress}% done`);
+                    }, (error) => {
+                        this.uploads[uploadIndex].error = true;
+                        this.uploads[uploadIndex].variant = 'bg-red-400';
+                        this.uploads[uploadIndex].icon = 'fas fa-times';
+                        this.uploads[uploadIndex].text_class = 'text-red-400';
+                        console.log(error);
+                    }, () => {
+                        this.uploads[uploadIndex].complete = true;
+                        this.uploads[uploadIndex].variant = 'bg-green-400';
+                        this.uploads[uploadIndex].icon = 'fas fa-check';
+                        this.uploads[uploadIndex].text_class = 'text-green-400';
                     });
                 });
             }
