@@ -3,8 +3,8 @@
     <section class="container mx-auto mt-6">
         <div class="md:grid md:grid-cols-3 md:gap-4">
             <div class="col-span-1">
-                <app-upload ref="upload"/>
-            </div> 
+                <app-upload ref="upload" />
+            </div>
             <div class="col-span-2">
                 <div class="bg-white rounded border border-gray-200 relative flex flex-col">
                     <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
@@ -13,17 +13,23 @@
                     </div>
                     <div class="p-6">
                         <!-- Composition Items -->
-                        <composition-item v-for="song in songs" :key="song.docId" :song="song"/>
+                        <composition-item
+                            v-for="(song, i) in songs"
+                            :key="song.docId"
+                            :song="song"
+                            :updateSong="updateSong"
+                            :index="i"
+                        />
                     </div>
                 </div>
             </div>
         </div>
     </section>
 </template>
-  
+
 <script>
-import AppUpload from '../components/Upload.vue';
-import CompositionItem from '../components/CompositionItem.vue';
+import AppUpload from "../components/Upload.vue";
+import CompositionItem from "../components/CompositionItem.vue";
 import { songsCollection, auth } from "@/includes/firebase";
 
 export default {
@@ -34,8 +40,8 @@ export default {
     },
     data() {
         return {
-            songs: []
-        }
+            songs: [],
+        };
     },
     async created() {
         const userId = auth.currentUser.uid;
@@ -43,15 +49,20 @@ export default {
         const querySnapshot = await songsCollection.where("uid", "==", userId).get();
 
         querySnapshot.forEach((document) => {
-            console.log(document.id, " => ", document.data());
             const song = {
                 docId: document.id,
-                ...document.data()
+                ...document.data(),
             };
 
             this.songs.push(song);
         });
-    }
+    },
+    methods: {
+        updateSong(index, values) {
+            this.songs[index].modified_name = values.modified_name;
+            this.songs[index].genre = values.genre;
+        },
+    },
     //beforeRouteEnter(to, from, next) {
     //   const store = useUserStore();
     //   if (store.userLoggedIn) {
@@ -66,4 +77,3 @@ export default {
     //}
 };
 </script>
-  
