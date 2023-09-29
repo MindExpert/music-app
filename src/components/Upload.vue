@@ -7,7 +7,16 @@
         <div class="p-6">
             <!-- Upload Dropbox -->
             <div
-                class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid">
+                class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid"
+                :class="{'bg-green-400 border-green-400 border-solid text-white font-medium' : is_dragover }"
+                @drag.prevent.stop=""
+                @dragstart.prevent.stop=""
+                @dragend.prevent.stop="is_dragover = false"
+                @dragover.prevent.stop="is_dragover = true"
+                @dragenter.prevent.stop="is_dragover = true"
+                @dragleave.prevent.stop="is_dragover = false"
+                @drop.prevent.stop="upload($event)"
+                >
                 <h5>Drop your files here</h5>
             </div>
             <hr class="my-6" />
@@ -37,7 +46,43 @@
 </template>
 
 <script>
+    import { storage } from "@/includes/firebase";
+
     export default {
         name: "Upload",
+        data() {
+            return {
+                is_dragover: false
+            }
+        },
+        methods: {
+            upload($event) {
+                this.is_dragover = false;
+                // Clever way of converting an object to an array
+                const files = [...$event.dataTransfer.files];
+                
+                files.forEach((file) => {
+                    if(file.type !== "audio/mpeg"){
+                        console.log('NOT RIGHT FORMAT');
+                        return;
+                    }
+
+                    const storageRef = storage.ref(); 'music-70ff1.appspot.com'
+
+                    // PUT Will initialize the upload process
+                    const uploadTask = storageRef.child(`songs/${file.name}`).put(file); 'music-70ff1.appspot.com/songs/music.mp3'
+
+                    //uploadTask.on(
+                    //    "state_changed",
+                    //    snapshot => {
+                    //        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    //        console.log(`Upload is ${progress}% done`);
+                    //    },
+                    //    error => console.error(error),
+                    //    () => console.log("Upload complete")
+                    //);
+                });
+            }
+        }
     }
 </script>

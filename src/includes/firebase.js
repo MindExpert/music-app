@@ -3,6 +3,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,8 +21,8 @@ firebase.initializeApp(firebaseConfig)
 // utils
 const auth = firebase.auth()
 const db = firebase.firestore()
-// const currentUser = auth.currentUser
-// const storage = firebase.storage()
+const currentUser = auth.currentUser
+const storage = firebase.storage()
 
 // collection references
 const usersCollection = db.collection('users')
@@ -30,7 +31,7 @@ const usersCollection = db.collection('users')
 export {
   db,
   auth,
-  // currentUser,
-  // storage,
+  currentUser,
+  storage,
   usersCollection
 }
