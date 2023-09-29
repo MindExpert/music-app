@@ -25,7 +25,8 @@ const currentUser = auth.currentUser
 const storage = firebase.storage()
 
 // collection references
-const usersCollection = db.collection('users')
+const usersCollection = db.collection('users');
+const songsCollection = db.collection('songs');
 
 // export utils/refs
 export {
@@ -33,5 +34,6 @@ export {
   auth,
   currentUser,
   storage,
-  usersCollection
+  usersCollection,
+  songsCollection,
 }

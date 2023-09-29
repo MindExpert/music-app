@@ -42,7 +42,7 @@
 </template>
 
 <script>
-    import { storage } from "@/includes/firebase";
+    import { storage, auth, songsCollection } from "@/includes/firebase";
 
     export default {
         name: "Upload",
@@ -93,7 +93,24 @@
                         this.uploads[uploadIndex].icon = 'fas fa-times';
                         this.uploads[uploadIndex].text_class = 'text-red-400';
                         console.log(error);
-                    }, () => {
+                    }, async () => {
+                        /** SUCCESS CALLBACK FUNCTION */ 
+
+                        // task comes with a snapshot of current upload. 
+                        const song = {
+                            uid: auth.currentUser.uid,
+                            display_name: auth.currentUser.displayName,
+                            original_name: task.snapshot.ref.name,
+                            modified_name: task.snapshot.ref.name,
+                            url: await task.snapshot.ref.getDownloadURL(),
+                            genre: '',
+                            comment_count: 0,
+                        }
+
+                        //song.url = await task.snapshot.ref.getDownloadURL(),
+
+                        await songsCollection.add(song);
+
                         this.uploads[uploadIndex].complete = true;
                         this.uploads[uploadIndex].variant = 'bg-green-400';
                         this.uploads[uploadIndex].icon = 'fas fa-check';
