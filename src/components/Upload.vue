@@ -19,6 +19,9 @@
                 >
                 <h5>Drop your files here</h5>
             </div>
+
+            <!-- Upload Button [Fallback] -->
+            <input type="file" multiple @change="upload($event)"/>
  
             <hr class="my-6" />
 
@@ -55,8 +58,11 @@
         methods: {
             upload($event) {
                 this.is_dragover = false;
-                // Clever way of converting an object to an array
-                const files = [...$event.dataTransfer.files];
+                
+                // We are determing if the upload is made with drag and drip or with upload input
+                const files = $event.dataTransfer 
+                    ? [...$event.dataTransfer.files]  // Clever way of converting an object to an array
+                    : [...$event.target.files];
                 
                 files.forEach((file) => {
                     if(file.type !== "audio/mpeg"){
@@ -117,7 +123,16 @@
                         this.uploads[uploadIndex].text_class = 'text-green-400';
                     });
                 });
+            },
+            cancelUploads() {
+                this.uploads.forEach((upload) => {
+                    upload.task.cancel();
+                });
             }
+        },
+        beforeUnmount() {
+            // Cancelling Uploads to firebase
+            this.cancelUploads();
         }
     }
 </script>
