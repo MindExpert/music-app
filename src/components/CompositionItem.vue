@@ -2,8 +2,10 @@
     <div class="border border-gray-200 p-3 mb-4 rounded">
         <div v-show="!showForm">
             <h4 class="inline-block text-2xl font-bold">{{ song.modified_name }}</h4>
-            <button class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
-                @click.prevent="deleteSong">
+            <button
+                class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
+                @click.prevent="deleteSong"
+            >
                 <i class="fa fa-times"></i>
             </button>
             <button
@@ -158,16 +160,17 @@ export default {
             let isRemoved = false;
 
             if (confirm("Are you sure you want to delete this song?")) {
-              
                 // Delete song from Storage
-                await songRef.delete()
-                .then(() => {
-                    isRemoved = true;
-                }).catch((error)=>{
-                    console.log(error);
-                })
+                await songRef
+                    .delete()
+                    .then(() => {
+                        isRemoved = true;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
 
-                if(isRemoved) {
+                if (isRemoved) {
                     // Delete Song from Collection
                     await songsCollection.doc(this.song.docId).delete();
                     // Remove song from the View
@@ -175,18 +178,12 @@ export default {
                     this.$emit("delete-song", this.song);
                 }
             }
-
-            
-
-
             // Delete Song from Storage
             //await songRef.delete();
             //// Delete Song from Collection
             //await songsCollection.doc(this.song.docId).delete();
             //// Remove song from the View
             //this.removeSong(this.index);
-
-            
         },
     },
 };
