@@ -20,6 +20,7 @@
                             :updateSong="updateSong"
                             :index="i"
                             :removeSong="removeSong"
+                            :updateUnsavedFlag="updateUnsavedFlag"
                         />
                     </div>
                 </div>
@@ -42,6 +43,7 @@ export default {
     data() {
         return {
             songs: [],
+            unsavedFlag: false,
         };
     },
     async created() {
@@ -67,7 +69,10 @@ export default {
 
             this.songs.push(song);
         },
-    },
+        updateUnsavedFlag(value) {
+            this.unsavedFlag = value;
+        },
+     },
     //beforeRouteEnter(to, from, next) {
     //   const store = useUserStore();
     //   if (store.userLoggedIn) {
@@ -76,9 +81,17 @@ export default {
     //        next({ name: "home" });
     //   }
     //},
-    //beforeRouteLeave (to, from, next) {
-    //    this.$refs.upload.cancelUploads;
-    //    next();
-    //}
+    beforeRouteLeave (to, from, next) {
+        if(!this.unsavedFlag) {
+            next();
+        } else {
+            // confirm() returns true or false
+            const leave = confirm('You have unsaved changes. Are you sure you want to leave this page?');
+            next(leave);
+        }
+
+       //this.$refs.upload.cancelUploads;
+       //next();
+    }
 };
 </script>

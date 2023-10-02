@@ -31,6 +31,7 @@
                         name="modified_name"
                         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
                         placeholder="Enter Song Title"
+                        @input="updateUnsavedFlag(true)"
                     />
                     <ErrorMessage name="modified_name" class="text-red-600" />
                 </div>
@@ -41,6 +42,7 @@
                         name="genre"
                         class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
                         placeholder="Enter Genre"
+                        @input="updateUnsavedFlag(true)"
                     />
                     <ErrorMessage name="genre" class="text-red-600" />
                 </div>
@@ -85,6 +87,10 @@ export default {
             required: true,
         },
         removeSong: {
+            type: Function,
+            required: true,
+        },
+        updateUnsavedFlag: {
             type: Function,
             required: true,
         },
@@ -142,6 +148,7 @@ export default {
             }
 
             this.updateSong(this.index, values);
+            this.updateUnsavedFlag(false);
 
             this.showForm = false;
         },
