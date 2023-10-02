@@ -2,7 +2,8 @@
     <div class="border border-gray-200 p-3 mb-4 rounded">
         <div v-show="!showForm">
             <h4 class="inline-block text-2xl font-bold">{{ song.modified_name }}</h4>
-            <button class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right">
+            <button class="ml-1 py-1 px-2 text-sm rounded text-white bg-red-600 float-right"
+                @click.prevent="deleteSong">
                 <i class="fa fa-times"></i>
             </button>
             <button
@@ -64,7 +65,7 @@
 </template>
 
 <script>
-import { songsCollection } from "@/includes/firebase";
+import { songsCollection, storage } from "@/includes/firebase";
 import { ErrorMessage } from "vee-validate";
 
 export default {
@@ -80,6 +81,10 @@ export default {
             required: true,
         },
         updateSong: {
+            type: Function,
+            required: true,
+        },
+        removeSong: {
             type: Function,
             required: true,
         },
@@ -139,6 +144,42 @@ export default {
             this.updateSong(this.index, values);
 
             this.showForm = false;
+        },
+        async deleteSong() {
+            const storageRef = storage.ref();
+            const songRef = storageRef.child(`songs/${this.song.original_name}`);
+            let isRemoved = false;
+
+            if (confirm("Are you sure you want to delete this song?")) {
+              
+                // Delete song from Storage
+                await songRef.delete()
+                .then(() => {
+                    isRemoved = true;
+                }).catch((error)=>{
+                    console.log(error);
+                })
+
+                if(isRemoved) {
+                    // Delete Song from Collection
+                    await songsCollection.doc(this.song.docId).delete();
+                    // Remove song from the View
+                    this.removeSong(this.index);
+                    this.$emit("delete-song", this.song);
+                }
+            }
+
+            
+
+
+            // Delete Song from Storage
+            //await songRef.delete();
+            //// Delete Song from Collection
+            //await songsCollection.doc(this.song.docId).delete();
+            //// Remove song from the View
+            //this.removeSong(this.index);
+
+            
         },
     },
 };
