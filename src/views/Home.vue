@@ -20,11 +20,13 @@
     <!-- Main Content -->
     <section class="container mx-auto">
         <div class="bg-white rounded border border-gray-200 relative flex flex-col">
+
             <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
                 <span class="card-title">Songs</span>
                 <!-- Icon -->
                 <i class="fa fa-headphones-alt float-right text-green-400 text-xl"></i>
             </div>
+
             <!-- Playlist -->
             <ol id="playlist">
                 <app-song-item
@@ -54,11 +56,19 @@ export default {
         }
     },
     async created() {
-        const querySnapshot = await songsCollection.get();
+        this.getSongs();
 
-        querySnapshot.forEach(this.addSong);
+        window.addEventListener('scroll', this.handleScroll);
+    },
+    beforeUnmount() {
+        // We remove the event listener, otherwise we will experience memory leak issues
+        window.removeEventListener('scroll', this.handleScroll);
     },
     methods: {
+        async getSongs(){
+            const querySnapshot = await songsCollection.get();
+            querySnapshot.forEach(this.addSong);
+        },
         addSong(document) {
             const song = {
                 docId: document.id,
@@ -67,6 +77,17 @@ export default {
 
             this.songs.push(song);
         },
+        handleScroll() {
+            const { scrollTop, offsetHeight } = document.documentElement;
+            const { innerHeight } = window;
+
+            const bottomOfWindow = Math.round(scrollTop) + innerHeight === offsetHeight;
+
+            if (bottomOfWindow) {
+                console.log('Request More Data');
+                //this.getSongs();
+            }
+        }
     },
 }
 
