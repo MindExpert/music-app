@@ -21,7 +21,7 @@
         <div class="bg-white rounded border border-gray-200 relative flex flex-col">
             <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
                 <!-- Comment Count -->
-                <span class="card-title">Comments (15)</span>
+                <span class="card-title">Comments ({{ song.comment_count }})</span>
                 <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
             </div>
 
@@ -54,7 +54,7 @@
                 </vee-form>
 
                 <!-- Sort Comments -->
-                <select
+                <select v-model="sort"
                     class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded">
                     <option value="1">Latest</option>
                     <option value="2">Oldest</option>
@@ -66,7 +66,7 @@
     <!-- Comments -->
     <ul class="container mx-auto">
         <li class="p-6 bg-gray-50 border border-gray-200" 
-            v-for="comment in comments"
+            v-for="comment in sortedComments"
             :key="comment.docId"
         >
             <!-- Comment Author -->
@@ -102,28 +102,40 @@ export default {
             comment_show_alert: false,
             comment_alert_variant: "bg-red-500",
             comment_alert_message: "Please wait... Comment is being Submitted!",
+            sort: '1', 
         };
     },
     computed: {
-        ...mapState(userStore, ['userLoggedIn'])
+        ...mapState(userStore, ['userLoggedIn']),
+        sortedComments() {
+            return this.comments.slice().sort((a, b) => {
+                 // Latest to Oldest (desc)
+                if(this.sort === '1') {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                }
+
+                // Oldest to Latest (asc)
+                return new Date(a.created_at) - new Date(b.created_at);
+            });
+        }
     },
     async created() {
-        this.fetchSongData();
+        // doc() retrieves a SINGLE document by its ID, where() retrives a group of DATA
+        const docSnapshot = await songsCollection.doc(this.$route.params.id).get();
+
+        if(! docSnapshot.exists) {
+            this.$route.push({ name: 'home'});
+            return;
+        }
+
+        const { sort } = this.$route.query;
+
+        this.sort = (sort === '1' || sort === '2') ? sort : '1';
+
+        this.song = docSnapshot.data();
+        this.getComments();
     },
     methods: {
-        async fetchSongData() {
-            // doc() retrieves a SINGLE document by its ID, where() retrives a group of DATA
-            const docSnapshot = await songsCollection.doc(this.$route.params.id).get();
-
-            if(! docSnapshot.exists) {
-                this.$route.push({ name: 'home'});
-                return;
-            }
-
-            this.song = docSnapshot.data();
-
-            this.getComments();
-        },
         // Second argumnt hold information about the form. We are interested only on reseting the form 
         async addComment(values, { resetForm }) {
             this.comment_in_submission = true;
@@ -142,6 +154,12 @@ export default {
             try {
                 await commentsCollection.add(comment);
 
+                this.song.comment_count += 1;
+
+                await songsCollection.doc(this.$route.params.id).update({
+                    comment_count: this.song.comment_count,
+                });
+
                 this.comment_alert_variant = "bg-green-500";
                 this.comment_alert_message = "Comment has been added successfully!";
             } catch (error) {
@@ -152,24 +170,38 @@ export default {
                 resetForm();
             }
 
-            // this.comment_in_submission = false; resetForm();
+            this.getComments();
         },
         async getComments() {
             const commentsSnapshots = await commentsCollection
                 .where("sid", "==", this.$route.params.id)
                 .get(); 
 
-                this.comments = [];
+            this.comments = [];
 
-                commentsSnapshots.forEach((doc) => {
-                    this.comments.push({
-                        id: doc.id,
-                        ...doc.data(),
-                    });
+            commentsSnapshots.forEach((doc) => {
+                this.comments.push({
+                    id: doc.id,
+                    ...doc.data(),
                 });
+            });
 
-                console.log(this.comments);
+            //this.song.comment_count = this.comments.length;
         },
     },
+    watch: {
+        sort(newVal) {
+            // prevent from updating the route if query parameter already matches the sort value
+            if(newVal === this.$route.query.sort){
+                return;
+            }
+
+            this.$router.push({
+                name: 'song',
+                params: { id: this.$route.params.id },
+                query: { sort: newVal }
+            });
+        }
+    }
 };
 </script>
