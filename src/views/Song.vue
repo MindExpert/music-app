@@ -1,13 +1,16 @@
 <template>
     <!-- Music Header -->
     <section class="w-full mb-8 py-14 text-center text-white relative">
-        <div class="absolute inset-0 w-full h-full box-border bg-contain music-bg"
+        <div class="absolute inset-0 w-full h-full box-border bg-contain music-bg" 
             style="background-image: url(/assets/img/song-header.png)"></div>
         <div class="container mx-auto flex items-center">
             <!-- Play/Pause Button -->
-            <button type="button" class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full focus:outline-none">
+            <button type="button" 
+                @click.prevent="newSong(song)"
+                class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full focus:outline-none">
                 <i class="fas fa-play"></i>
             </button>
+
             <div class="z-50 text-left ml-8">
                 <!-- Song Info -->
                 <div class="text-3xl font-bold">{{ song.modified_name}}</div>
@@ -83,8 +86,9 @@
 <script>
 import { songsCollection, commentsCollection, auth } from "@/includes/firebase";
 import { ErrorMessage } from "vee-validate";
-import { mapState } from "pinia";
-import userStore from "@/stores/user";
+import { mapState, mapActions } from "pinia";
+import useUserStore from "@/stores/user";
+import  usePlayerStore from "@/stores/player";
 
 export default {
     name: "Song",
@@ -106,7 +110,7 @@ export default {
         };
     },
     computed: {
-        ...mapState(userStore, ['userLoggedIn']),
+        ...mapState(useUserStore, ["userLoggedIn"]),
         sortedComments() {
             return this.comments.slice().sort((a, b) => {
                  // Latest to Oldest (desc)
@@ -136,6 +140,8 @@ export default {
         this.getComments();
     },
     methods: {
+        // Map actions
+        ...mapActions(usePlayerStore, ["newSong"]),
         // Second argumnt hold information about the form. We are interested only on reseting the form 
         async addComment(values, { resetForm }) {
             this.comment_in_submission = true;
