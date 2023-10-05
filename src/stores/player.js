@@ -31,7 +31,6 @@ export default defineStore('player', {
             });
         },
         async toggleAudio() {
-            console.log(this.sound.playing);
             if (!this.sound.playing) {
                 return;
             }
@@ -46,9 +45,7 @@ export default defineStore('player', {
             this.seek = helper.formatTime(this.sound.seek());
             this.duration = helper.formatTime(this.sound.duration());
         
-            this.playerProgress = `${
-                (this.sound.seek() / this.sound.duration()) * 100
-            }%`;
+            this.playerProgress = `${(this.sound.seek() / this.sound.duration()) * 100}%`;
         
             if (this.sound.playing()) {
                 requestAnimationFrame(this.progress);
