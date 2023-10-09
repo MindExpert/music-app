@@ -2,6 +2,13 @@
     "home": {
         "listen": "Écoutez de la bonne musique!"
     },
+    "song": {
+        "comment_count": "Sans commentaires | 1 commentaire | {count} commentaires"
+    },
+    "register": {
+        "accept": "J'accepte les musiques {0}",
+        "tos": "Conditions d'utilisation"
+    },
     "manage": {
         "my_songs": "Mes chansons"
     }
