@@ -95,7 +95,7 @@ import { songsCollection, commentsCollection, auth } from "@/includes/firebase";
 import { ErrorMessage } from "vee-validate";
 import { mapState, mapActions } from "pinia";
 import useUserStore from "@/stores/user";
-import  usePlayerStore from "@/stores/player";
+import usePlayerStore from "@/stores/player";
 
 export default {
     name: "Song",
