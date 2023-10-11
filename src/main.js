@@ -6,12 +6,16 @@ import router from "./router";
 import VeeValidatePlugin from "./includes/validation";
 import { auth } from "./includes/firebase";
 import Icon from "./directives/icon";
-import i18n from "./includes/i18n"
+import i18n from "./includes/i18n";
+// import { registerSW } from 'virtual:pwa-register';
 
 import "./assets/base.css";
 import "./assets/main.css";
 
 let app;
+
+// const { install } = registerSW({immediate: true});
+// install({ onNeedRefresh: () => location.reload() });
 
 auth.onAuthStateChanged(() => {
     // Because the event might be thrown multiple times

@@ -19,15 +19,19 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 
 // utils
-const auth = firebase.auth()
-const db = firebase.firestore()
-const currentUser = auth.currentUser
-const storage = firebase.storage()
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+db.enablePersistence().catch((error) => {
+    console.error(`Firebase persistance error ${error.code}`);
+});
 
 // collection references
 const usersCollection = db.collection('users');
 const songsCollection = db.collection('songs');
 const commentsCollection = db.collection('comments');
+const currentUser = auth.currentUser
 
 // export utils/refs
 export {
